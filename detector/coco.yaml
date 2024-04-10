@@ -1,0 +1,9 @@
+names:
+  0: awake_face
+  1: awake_person
+  2: phone
+  3: sleeping_face
+  4: sleeping_person
+test: /Users/baejuhyeon/Datasets/capstone/split_dataset/test/
+train: /Users/baejuhyeon/Datasets/capstone/split_dataset/train/
+val: /Users/baejuhyeon/Datasets/capstone/split_dataset/val/
