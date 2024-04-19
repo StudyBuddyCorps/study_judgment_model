@@ -1,8 +1,7 @@
 """
 Merge Yolo txt label files together
 """
-import numpy as np
-import cv2
+
 import os
 from tqdm import tqdm
 

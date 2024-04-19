@@ -38,7 +38,7 @@ index = {0: "awake_face", 1: "awake_person", 2: "phone", 3: "sleeping_face", 4: 
 [print(num, index[idx]) for num, idx in zip(sum_list,index)]
 
 # 결과를 JSON 파일로 저장
-json_file_path = 'result/labels.json'
+json_file_path = '../result/labels.json'
 
 with open(json_file_path, 'w') as json_file:
     json.dump(results, json_file)

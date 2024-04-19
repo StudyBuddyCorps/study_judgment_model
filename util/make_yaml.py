@@ -12,10 +12,10 @@ data = {
 # sleeping_face
 # sleeping_person
 
-with open('detector/coco.yaml', 'w') as f :
+with open('../detector/coco.yaml', 'w') as f :
     yaml.dump(data, f)
 
 # check written file
-with open('detector/coco.yaml', 'r') as f :
+with open('../detector/coco.yaml', 'r') as f :
     lines = yaml.safe_load(f)
     print(lines)
