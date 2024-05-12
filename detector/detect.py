@@ -14,7 +14,7 @@ import os
 
 def detection_result(det_model, img, conf):
     detection_rst = [None, None, None, None, None]
-    results = det_model.predict(save=False, stream=True, verbose=False, show=True,source=0, conf=0.3)
+    results = det_model.predict(save=False, stream=True, verbose=False, show=False,source=img, conf=0.3)
 
     for r in results:
         for i in range(len(r.boxes.cls)):

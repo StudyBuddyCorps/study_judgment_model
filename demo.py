@@ -4,9 +4,23 @@ import os
 import cv2 as cv
 import mediapipe as mp
 import math
+import numpy as np
 
 from detector.detect import detection_result, is_sleeping
 from pose_estimate.pose_return_result import pose_result, return_slope
+
+
+def initialize_models(pose_threshold=0.5):
+    det_model = YOLO("models/train3_best.pt")
+    mp_pose = mp.solutions.pose
+    pose_model = mp_pose.Pose(static_image_mode=True, min_detection_confidence=pose_threshold)
+    key_points = [
+        mp_pose.PoseLandmark.LEFT_SHOULDER,
+        mp_pose.PoseLandmark.RIGHT_SHOULDER,
+        mp_pose.PoseLandmark.RIGHT_WRIST,
+        mp_pose.PoseLandmark.LEFT_WRIST
+    ]
+    return det_model, pose_model, key_points
 
 
 def calculate_distance(x1, y1, x2, y2):
@@ -23,12 +37,12 @@ def is_holding_phone(detection_rst=None, key_coords=None, threshold=500):
 
     d1 = (calculate_distance(r_x, r_y, x1, y1) + calculate_distance(r_x, r_y, x2, y2)) / 2
     d2 = (calculate_distance(l_x, l_y, x1, y1) + calculate_distance(l_x, l_y, x2, y2)) / 2
-    print(d1, d2)
+    # print(d1, d2)
 
     return d1 < threshold or d2 < threshold
 
 
-def write_text(image, text, position, font=cv.FONT_HERSHEY_SIMPLEX, font_scale=1, color=(0, 0, 0), thickness=3):
+def write_text(image, text, position, font=cv.FONT_HERSHEY_SIMPLEX, font_scale=1.5, color=(0, 0, 0), thickness=5, boolean=True):
     """
     :param image: 이미지 (NumPy 배열)
     :param text: 쓸 텍스트
@@ -39,24 +53,35 @@ def write_text(image, text, position, font=cv.FONT_HERSHEY_SIMPLEX, font_scale=1
     :param thickness: 텍스트 두께
     :return: 텍스트가 쓰인 이미지
     """
-    cv.putText(image, text, position, font, font_scale, color, thickness)
+    if boolean:
+        cv.putText(image, text, position, font, font_scale, (0, 0, 255), thickness)
+    else:
+        cv.putText(image, text, position, font, font_scale, color, thickness)
     return image
 
 
-def initialize_models(pose_threshold=0.5):
-    det_model = YOLO("models/train3_best.pt")
-    mp_pose = mp.solutions.pose
-    pose_model = mp_pose.Pose(static_image_mode=True, min_detection_confidence=pose_threshold)
-    key_points = [
-        mp_pose.PoseLandmark.LEFT_SHOULDER,
-        mp_pose.PoseLandmark.RIGHT_SHOULDER,
-        mp_pose.PoseLandmark.RIGHT_WRIST,
-        mp_pose.PoseLandmark.LEFT_WRIST
-    ]
-    return det_model, pose_model, key_points
+def draw_result_on_image(image, detection_rst, skeleton_result):
+    classes = {0: "awake_face",
+               1: "awake_person",
+               2: "phone",
+               3: "sleeping_face",
+               4: "sleeping_person"}
+    if skeleton_result is not None:
+        cv.circle(image, skeleton_result["LEFT_SHOULDER"], 30, (255, 255, 255), -1)
+        cv.circle(image, skeleton_result["RIGHT_SHOULDER"], 32, (255, 255, 255), -1)
+        cv.line(image, skeleton_result["LEFT_SHOULDER"], skeleton_result["RIGHT_SHOULDER"], (0, 0, 255), 3)
+    for i in range(len(detection_rst)):
+        if detection_rst[i] is not None:
+            box = detection_rst[i]
+            pts = np.array([[box[0],box[1]], [box[0],box[3]], [box[2],box[3]], [box[2],box[1]]])
+            text_org = (int(max(0,box[0]-10)),int(max(0,box[1]-10)))
+
+            cv.putText(image, classes[i], text_org, cv.FONT_HERSHEY_SIMPLEX, 2, (255, 0, 0), 2)
+            cv.polylines(image, np.int32([pts]), isClosed=True, color=(255, 0, 0), thickness=5)  # 사각형 그리기
+    return image
 
 
-def inference(conf=0.7, slop_threshold=0.3, decision_length=3):
+def inference(conf=0.7, slop_threshold=0.3, decision_length=3, show_result=True):
     # 웹캠 연결
     idx = 0
     is_phone_holding_list = [False for _ in range(decision_length)]
@@ -94,9 +119,15 @@ def inference(conf=0.7, slop_threshold=0.3, decision_length=3):
         if sum(is_phone_holding_list) > decision_length / 2:
             is_phone_holding = True
 
-        result = write_text(frame, f"is in sleep: {is_in_sleep}", (50, 50))
-        result = write_text(result, f"bad posture: {abs(slop) >= slop_threshold}", (50, 100))
-        result = write_text(result, f"phone: {is_phone_holding}", (50, 150))
+        result = frame.copy()
+        result = write_text(result, f"is in sleep: {is_in_sleep}", (50, 50), boolean=is_in_sleep)
+        result = write_text(result, f"bad posture: {abs(slop) >= slop_threshold}", (50, 100), boolean=abs(slop) >= slop_threshold)
+        result = write_text(result, f"phone: {is_phone_holding}", (50, 150), boolean=is_phone_holding)
+
+        if show_result:
+            drw_result = frame.copy()
+            drw_result = draw_result_on_image(drw_result, detection_rst, skeleton_rst)
+            result = np.hstack((result, drw_result))
 
         cv.imshow('Webcam', result)
         idx = (idx + 1) % decision_length
