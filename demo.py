@@ -44,14 +44,11 @@ def is_holding_phone(detection_rst=None, key_coords=None, threshold=500):
 
 def write_text(image, text, position, font=cv.FONT_HERSHEY_SIMPLEX, font_scale=1.5, color=(0, 0, 0), thickness=5, boolean=True):
     """
-    :param image: 이미지 (NumPy 배열)
-    :param text: 쓸 텍스트
     :param position: 텍스트의 위치 좌표 (tuple 형식)
     :param font: 폰트
     :param font_scale: 폰트 크기 배율
     :param color: 텍스트 색상 (BGR 순서, 기본값은 검은색)
     :param thickness: 텍스트 두께
-    :return: 텍스트가 쓰인 이미지
     """
     if boolean:
         cv.putText(image, text, position, font, font_scale, (0, 0, 255), thickness)

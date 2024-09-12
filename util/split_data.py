@@ -3,9 +3,10 @@ import random
 import shutil
 
 # 폴더 경로 설정
-base_folder = "/Users/baejuhyeon/Documents/capstone/study_dataset"
-output_folder = "/Users/baejuhyeon/Documents/capstone/study_dataset/split_dataset"
-categories = ["phone", "sleep_change", "study"]
+base_folder = "/Users/baejuhyeon/Datasets/capstone/study_dataset"
+output_folder = "/Users/baejuhyeon/Datasets/capstone/study_dataset/split_dataset"
+categories = ["phone", "sleep", "study", "sleep-add"]
+# categories = ["sleep-add"]
 
 # 결과를 저장할 폴더 생성
 os.makedirs(output_folder, exist_ok=True)
@@ -30,8 +31,12 @@ for category in categories:
 
     # 분할된 데이터셋을 저장할 폴더 생성
     for split in ["train", "val", "test"]:
-        os.makedirs(os.path.join(output_folder, split, "images"), exist_ok=True)
-        os.makedirs(os.path.join(output_folder, split, "labels"), exist_ok=True)
+        directory_img_path = os.path.join(output_folder, split, "images")
+        if not os.path.exists(directory_img_path):
+            os.makedirs(os.path.join(output_folder, split, "images"), exist_ok=True)
+        directory_label_path = os.path.join(output_folder, split, "labels")
+        if not os.path.exists(directory_label_path):
+            os.makedirs(os.path.join(output_folder, split, "labels"), exist_ok=True)
 
     # 데이터셋을 분할하여 저장
     for i, image in enumerate(images):

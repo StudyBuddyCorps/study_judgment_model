@@ -43,7 +43,9 @@ def detect_eyes(face_landmarks):
 def draw_eye_lines(frame, eye, start, end):
     for i in range(start, end):
         cv.line(frame, eye[i], eye[i+1], (0, 255, 0), 1)
+        cv.putText(frame, str(i), eye[i], cv.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1, cv.LINE_AA)
     cv.line(frame, eye[end], eye[start], (0, 255, 0), 1)
+    cv.putText(frame, str(end), eye[end], cv.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1, cv.LINE_AA)
 
 
 def main():
