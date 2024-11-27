@@ -1,6 +1,6 @@
 ![Stylized laptop side mockup](https://github.com/user-attachments/assets/b64e834b-dae0-43f0-9c2e-b42139c6b804)
 # 🐣StudyBuddy AI🐣
-노티와 함께 성장하는 공부 파트너, StudyBuddy의 AI입니다!
+Vision을 활용한 실시간 학습 관리 웹어플리케이션, StudyBuddy의 AI입니다!
 
 <br>
 
